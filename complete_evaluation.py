@@ -179,7 +179,7 @@ def get_parser():
                         help='Threshold for dropping columns with missing values')
     parser.add_argument('--correlation_threshold', '-ct', type=float, default=0.95,
                         help='Threshold for dropping columns with high correlation')
-    parser.add_argument('--data_exploration', '-ex', nargs='*', type=bool, default=False,
+    parser.add_argument('--data_exploration', '-ex', action='store_true',
                         help='if true, an html file will be generated showing statistics of the parsed dataset')
     parser.add_argument('--seed', '-s', type=int, default=42,
                         help='If true, a seed will be set for reproducibility')
