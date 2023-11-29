@@ -40,21 +40,24 @@ _______
 ## Usage
 
 The entrypoint for the evaluation is the `complete_evaluation.py` script. It takes the following arguments:
-* `dataset`: name of the dataset to evaluate, needs to have an associated package in `src/data`
-* `--feature_set`, `-f`: if the dataset is split into pre-, intra- and post-operative features, a subset can be defined here
-* `--external_testset`, `-e`: whether to use an external test set (or alternatively use train-test split of the training data)
-* `--out_dir`, `-o`: base directory to store the results in
-* `--no_features_dropped`, `-nfd`: deactivates dropping predefined features in dataframe
-* `--no_feature_selection`, `-nfs`: deactivates feature selection in pipeline
-* `--cv_splits`, `-cv`: number of cross_validation splits; 1 denotes LOO-CV
-* `--shap_eval`, `-sh`: if true, shap plots will be generated (increases runtime a lot)
-* `--test_fraction`, `-b`: fraction of data to use for test set (unused if `--external_testset` is `True`)
-* `--balancing_option`, `-b`: technique to deal with imbalanced data (one of `class_weight`, `random_oversampling`, `SMOTE`, `ADASYN`, `none`)
-* `--drop_missing_value`, `-dr`: Drop rows with x% of columns having missing values
-* `--missing_threshold`, `-mt`: Drop columns with x% of rows having missing values
-* `--correlation_threshold`, `-ct`: Drop columns with correlation above threshold
-* `--data_exploration`, `-ex`: if true, an html file will be generated showing statistics of the parsed dataset
-* `--seed`, `-s`: random state for initialisations
+* `dataset`: name of the dataset to evaluate, needs to have an associated package in `src/data`.
+* `--feature_set`, `-f`: if the dataset is split into pre-, intra- and post-operative features, a subset can be defined here.
+* `--external_testset`, `-e`: whether to use an external test set (or alternatively use train-test split of the training data).
+* `--imputer`, `-i`: the name of the sklearn imputer to use.
+* `--normaliser`, `-n`: the name of the sklearn normaliser to use.
+* `--feature-selectors`, `-fs`: a list of the feature selectors from `src/utils/feature_selector.py` to apply. If flag is not set, all feature selectors are used. Including the flag without additional parameters leads to no feature selectors being used. 
+* `--out_dir`, `-o`: base directory to store the results in.
+* `--no_features_dropped`, `-nfd`: deactivates dropping predefined features in dataframe.
+* `--no_feature_selection`, `-nfs`: deactivates feature selection in pipeline.
+* `--cv_splits`, `-cv`: number of cross_validation splits; 1 denotes LOO-CV.
+* `--shap_eval`, `-sh`: if true, shap plots will be generated (increases runtime a lot).
+* `--test_fraction`, `-b`: fraction of data to use for test set (unused if `--external_testset` is `True`).
+* `--balancing_option`, `-b`: technique to deal with imbalanced data (one of `class_weight`, `random_oversampling`, `SMOTE`, `ADASYN`, `none`).
+* `--drop_missing_value`, `-dr`: Drop rows with x% of columns having missing values.
+* `--missing_threshold`, `-mt`: Drop columns with x% of rows having missing values.
+* `--correlation_threshold`, `-ct`: Drop columns with correlation above threshold.
+* `--data_exploration`, `-ex`: if true, an html file will be generated showing statistics of the parsed dataset.
+* `--seed`, `-s`: random state for initialisations.
 
 The script will then perform a cross-validation and hyperparameter optimisation of all models and the
 respective parameter options defined in `src/models.py` and store the results in the specified output directory. 

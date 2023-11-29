@@ -41,21 +41,27 @@ def main(args):
 
     # Preprocess data
     X, Y = get_preprocessed_data(data,
+                                 fs_operations=args.feature_selectors,
                                  missing_threshold=args.missing_threshold,
                                  correlation_threshold=args.correlation_threshold,
+                                 imputer=args.imputer,
+                                 normaliser=args.normaliser,
                                  verbose=True,
                                  validation=False)
 
     # Preprocess external validation data
     if args.external_testset:
         X_val, Y_val = get_preprocessed_data(data,
+                                             fs_operations=args.feature_selectors,
                                              missing_threshold=args.missing_threshold,
                                              correlation_threshold=args.correlation_threshold,
+                                             imputer=args.imputer,
+                                             normaliser=args.normaliser,
                                              verbose=True, validation=True)
-        print(X_val.columns.difference(X.columns))
+        print(f'Dropping columns in val data since they are missing in train data: {X_val.columns.difference(X.columns)}')
         # Get rid of extra columns introduced by values in validation dataset
         X_val = X_val.drop(set(X_val.columns.difference(X.columns)), axis=1)
-
+        assert len(X.columns.difference(X_val.columns)) == 0, f'Error: Train data includes columns {X.columns.difference(X_val.columns)} that are missing in val data'
     all_metrics_list = all_classification_metrics_list
 
     all_test_metric_dfs = {metric: pd.DataFrame(dtype=np.float64) for metric in all_metrics_list if metric != 'confusion_matrix'}
@@ -72,8 +78,6 @@ def main(args):
 
         # Set endpoint for iteration
         y = Y[label_col]
-
-        print(Y.info())
 
         # If we do not have an external validation dataset, we split the original dataset
         if not args.external_testset:
@@ -142,19 +146,25 @@ def get_parser():
                                      'Test metrics correspond to the results of a classification threshold optimised ' +
                                      'based on the optimal F1-score.')
 
-    parser.add_argument('dataset', type=str, choices=['esophagus', 'pancreas', 'stomach'],
+    parser.add_argument('dataset', type=str, choices=['cass_retro', 'esophagus', 'complications', 'stomach'],
                         help='the dataset to process')
     parser.add_argument('--feature_set', '-f', nargs='*', type=str, choices=['pre', 'intra', 'post', 'dyn'],
                         help='if given, processes only features from all provided feature sets')
-    parser.add_argument('--external_testset', '-e', type=bool, action='store_true',
+    parser.add_argument('--external_testset', '-e', action='store_true',
                         help='if specified, external validation dataset will be used as test data')
+    parser.add_argument('--imputer', '-i', choices=['iterative', 'knn', 'mean'], nargs='?', const='knn', default=None,
+                        help='Which imputer to use for missing values')
+    parser.add_argument('--normaliser', '-n', choices=['standard', 'minmax'], nargs='?', const='standard', default=None,
+                        help='Which normaliser to use to scale numerical values')
+    parser.add_argument('--feature_selectors', '-fs', choices=['missing', 'single_unique', 'collinear'], nargs='*', default=['missing', 'single_unique', 'collinear'],
+                        help='Which feature selection functions to use. Do not specify for all, use flag without args for none.')
     parser.add_argument('--out_dir', '-o', type=str,
                         help='output directory')
     parser.add_argument('--no_features_dropped', '-nfd', action='store_false', dest='drop_features',
                         help='deactivates dropping predefined features in dataframe')
     parser.add_argument('--no_feature_selection', '-nfs', action='store_false', dest='select_features',
                         help='deactivates feature selection in pipeline')
-    parser.add_argument('--cv_splits', '-cv', type=int, default=8,
+    parser.add_argument('--cv_splits', '-cv', type=int, default=10,
                         help='number of cross_validation splits; 1 denotes LOO-CV')
     parser.add_argument('--shap_eval', '-sh', type=bool, default=False,
                         help='if true, shap values will be evaluated. Disabled by default, since it increases runtime a lot.')
@@ -180,4 +190,5 @@ def get_parser():
 if __name__ == '__main__':
     arg_parser = get_parser()
     args = arg_parser.parse_args()
+    print(args)
     main(args)
